@@ -20,8 +20,9 @@ REFRESH_TOKEN_EXPIRES_IN = 60
 @router.post('/register', status_code=status.HTTP_201_CREATED)
 async def create_user(payload: user.CreateUser, request: Request):
     # Check if user already exist
-    user = User.find_one({'email': payload.email.lower(), 'username': payload.username})
-    if user:
+    checkEmail = User.find_one({'email': payload.email.lower()})
+    checkUsername = User.find_one({'username': payload.username.lower()})
+    if checkEmail or checkUsername:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail='Account already exist')
     # Compare password and passwordConfirm
