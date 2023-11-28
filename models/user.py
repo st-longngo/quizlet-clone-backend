@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, constr
 from bson.objectid import ObjectId
 
 class UserBase(BaseModel):

@@ -20,18 +20,15 @@ class ClassBase(BaseModel):
     arbitrary_types_allowed = True
     json_encoders = {ObjectId: str}
 
-
 class CreateClass(ClassBase):
   user: str or None = None
   pass
-
 
 class ClassResponse(ClassBase):
   id: str
   user: user.FilteredUserResponse
   created_at: datetime
   updated_at: datetime
-
 
 class UpdateClass(BaseModel):
   name: str or None = None
@@ -45,7 +42,6 @@ class UpdateClass(BaseModel):
     allow_population_by_field_name = True
     arbitrary_types_allowed = True
     json_encoders = {ObjectId: str}
-
 
 class ListPostResponse(BaseModel):
   status: str
