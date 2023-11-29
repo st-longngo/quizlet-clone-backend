@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import hashlib
-from random import randbytes
 from bson.objectid import ObjectId
 from fastapi import APIRouter, Request, Response, status, Depends, HTTPException
 from pydantic import EmailStr
