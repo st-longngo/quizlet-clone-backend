@@ -6,5 +6,4 @@ fastapi-jwt-auth[asymmetric]
 uvicorn==0.12.1
 bcrypt
 dnspython==1.16.0
-certifi
 pymongo[srv]
