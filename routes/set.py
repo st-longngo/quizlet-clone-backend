@@ -74,7 +74,7 @@ def update_set(id: str, payload: UpdateSet, user_id: str = Depends(require_user)
 
 
 @router.get('/{id}')
-def get_set(id: str, user_id: str = Depends(require_user)):
+def get_set(id: str):
     if not ObjectId.is_valid(id):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                             detail=f"Invalid id: {id}")
