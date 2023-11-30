@@ -5,7 +5,8 @@ from routes import user, auth, post, classes, set
 
 app = FastAPI()
 origins = [
-    'http://localhost:3000'
+    'http://localhost:3000',
+    'https://flashcard-web.onrender.com'
 ]
 
 app.add_middleware(
