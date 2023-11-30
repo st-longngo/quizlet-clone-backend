@@ -2,9 +2,11 @@ from datetime import datetime
 from fastapi import Depends, HTTPException, status, APIRouter, Response
 from pymongo.collection import ReturnDocument
 from models.set import CreateSet, UpdateSet
-from config.database import Set
+from models.comment import CreateComment
+from config.database import Set, Comment
 from config.oauth2 import require_user
 from serializers.set import setEntity, setListEntity
+from serializers.comment import commentListEntity
 from bson.objectid import ObjectId
 from pymongo.errors import DuplicateKeyError
 
@@ -104,4 +106,52 @@ def delete_set(id: str, user_id: str = Depends(require_user)):
     if not set:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f'No set with this id: {id} found')
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+@router.get('/{id}/comments')
+def get_comment(id: str):
+    if not ObjectId.is_valid(id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Invalid id: {id}")
+    pipeline = [
+        {'$match': {'setId': ObjectId(id)}},
+        {'$lookup': {'from': 'users', 'localField': 'user',
+                     'foreignField': '_id', 'as': 'user'}},
+        {'$unwind': '$user'},
+    ]
+    db_cursor = Comment.aggregate(pipeline)
+    results = list(db_cursor)
+
+    comments = commentListEntity(results)
+    return comments
+
+@router.post('/{id}/comments', status_code=status.HTTP_201_CREATED)
+def create_comment(id: str, comment: CreateComment, user_id: str = Depends(require_user)):
+    comment.user = ObjectId(user_id)
+    comment.setId = ObjectId(id)
+    comment.created_at = datetime.utcnow()
+    comment.updated_at = comment.created_at
+    try:
+        result = Comment.insert_one(comment.dict())
+        pipeline = [
+            {'$match': {'_id': result.inserted_id}},
+            {'$lookup': {'from': 'users', 'localField': 'user',
+                         'foreignField': '_id', 'as': 'user'}},
+            {'$unwind': '$user'},
+        ]
+        new_comment = commentListEntity(Comment.aggregate(pipeline))[0]
+        return new_comment
+    except DuplicateKeyError:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail=f"Comment already exists")
+    
+@router.delete('/{comment_id}/comments')
+def delete_set(comment_id: str, user_id: str = Depends(require_user)):
+    if not ObjectId.is_valid(comment_id):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Invalid id: {id}")
+    comment = Comment.find_one_and_delete({'_id': ObjectId(comment_id)})
+    if not comment:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail=f'No comment with this id: {id} found')
     return Response(status_code=status.HTTP_204_NO_CONTENT)
