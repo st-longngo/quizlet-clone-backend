@@ -54,3 +54,4 @@ class ListSetResponse(BaseModel):
   status: str
   results: int
   posts: List[SetResponse]
+  
