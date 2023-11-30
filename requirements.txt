@@ -8,3 +8,4 @@ bcrypt
 dnspython==1.16.0
 certifi
 pymongo[srv]
+fastapi-jwt-auth[asymmetric]
